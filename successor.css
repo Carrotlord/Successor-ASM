@@ -72,6 +72,11 @@ table.encoding {
     text-align: center;
 }
 
+.selected_line {
+    background-color: slateblue;
+    color: white;
+}
+
 /* Generated using http://www.bestcssbuttongenerator.com/#/PkLUp7fr4B */
 .simulator_tab {
 	/* -moz-box-shadow:inset 0px 39px 0px -24px #9fb4f2; */
