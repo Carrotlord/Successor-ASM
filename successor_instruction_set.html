@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Successor</title>
+<link href="http://fonts.googleapis.com/css?family=Signika+Negative" rel="stylesheet" type="text/css">
+<link rel="stylesheet" type="text/css" href="successor.css">
+</head>
+
+<body>
+<h1>Successor Instruction Set</h1>
+<h2>By Oliver Chu</h2>
+<pre><span class="type">t</span> <span class="mnemonic">mov</span> <span class="register">rA</span>, <span class="register">rB</span>, <span class="constant">constant</span>
+registerA = registerB + constant
+
+<span class="type">t</span> <span class="mnemonic">add</span> <span class="register">rA</span>, <span class="register">rB</span>, <span class="constant">constant</span>
+registerA += registerB + constant
+
+<span class="type">t</span> <span class="mnemonic">sub</span> <span class="register">rA</span>, <span class="register">rB</span>, <span class="constant">constant</span>
+registerA -= (registerB + constant)
+
+<span class="type">i</span> <span class="mnemonic">and</span> <span class="register">rA</span>, <span class="register">rB</span>, <span class="constant">constant</span>
+registerA &= (registerB | constant)
+
+<span class="type">i</span> <span class="mnemonic">or</span> <span class="register">rA</span>, <span class="register">rB</span>, <span class="constant">constant</span>
+registerA |= registerB | constant
+
+<span class="type">i</span> <span class="mnemonic">xor</span> <span class="register">rA</span>, <span class="register">rB</span>, <span class="constant">constant</span>
+registerA ^= registerB ^ constant
+
+<span class="type">t</span> <span class="mnemonic">mul</span> <span class="register">rA</span>, <span class="register">rB</span>, <span class="constant">constant</span>
+registerA *= registerB + constant
+
+<span class="type">t</span> <span class="mnemonic">div</span> <span class="register">rA</span>, <span class="register">rB</span>, <span class="constant">constant</span>
+registerA /= registerB + constant
+
+<span class="type">t</span> <span class="mnemonic">mod</span> <span class="register">rA</span>, <span class="register">rB</span>, <span class="constant">constant</span>
+registerA %= registerB + constant
+
+<span class="type">i</span> <span class="mnemonic">shlv</span> <span class="register">rA</span>, <span class="register">rB</span>
+registerA &lt;&lt;= registerB
+
+<span class="type">i</span> <span class="mnemonic">shrv</span> <span class="register">rA</span>, <span class="register">rB</span>
+registerA &gt;&gt;&gt;= registerB    <span class="comment"># shift right logical</span>
+
+<span class="type">i</span> <span class="mnemonic">sharv</span> <span class="register">rA</span>, <span class="register">rB</span>
+registerA &gt;&gt;= registerB     <span class="comment"># shift right arithmetic</span>
+
+<span class="type">t</span> <span class="mnemonic">jeq</span> <span class="register">rA</span>, <span class="register">rB</span>, address
+if registerA == registerB: jump to address
+
+<span class="type">t</span> <span class="mnemonic">jne</span> <span class="register">rA</span>, <span class="register">rB</span>, address
+if registerA != registerB: jump to address
+
+<span class="type">t</span> <span class="mnemonic">jge</span> <span class="register">rA</span>, <span class="register">rB</span>, address
+if registerA &gt;= registerB: jump to address
+
+<span class="type">t</span> <span class="mnemonic">jg</span> <span class="register">rA</span>, <span class="register">rB</span>, address
+if registerA &gt; registerB: jump to address
+
+<span class="type">t</span> <span class="mnemonic">jle</span> <span class="register">rA</span>, <span class="register">rB</span>, address
+if registerA &lt;= registerB: jump to address
+
+<span class="type">t</span> <span class="mnemonic">jl</span> <span class="register">rA</span>, <span class="register">rB</span>, address
+if registerA &lt; registerB: jump to address
+
+<span class="mnemonic">j</span> address
+jump to address
+
+<span class="type">i</span> <span class="mnemonic">jmp</span> <span class="register">rA</span>
+jump to address within registerA
+
+<span class="mnemonic">call</span> address
+stack.push(old_address + 8); jump to address
+
+<span class="mnemonic">ret</span>
+return_value = stack.pop(); jump to return_value
+
+<span class="type">t</span> <span class="mnemonic">syscall</span> <span class="register">rA</span>, <span class="register">rB</span>, <span class="constant">constant</span>
+system_call(registerA</span>, registerB</span>, constant)
+
+<span class="type">t</span> <span class="mnemonic">load</span> <span class="register">rA</span>, <span class="register">rB</span>, <span class="register">rC</span>, <span class="constant">constant</span>
+registerA = memory[registerB + registerC + constant]
+<span class="comment"># actually:
+# array = registerB
+# registerA = array[registerC + constant]</span>
+
+<span class="type">t</span> <span class="mnemonic">save</span> <span class="register">rA</span>, <span class="register">rB</span>, <span class="register">rC</span>, <span class="constant">constant</span>
+memory[registerB + registerC + constant] = registerA
+<span class="comment"># actually:
+# array = registerB
+# array[registerC + constant] = registerA</span>
+
+<span class="type">t</span> <span class="mnemonic"><em>arithmetic_instruction</em></span> <span class="register">rA</span>, <span class="register">rB</span>, <span class="constant">constant</span> with <span class="mnemonic">shl</span> <span class="constant">immediate</span>
+(registerB &lt;&lt; immediate) used instead of registerB before instruction executes
+
+<span class="type">t</span> <span class="mnemonic"><em>arithmetic_instruction</em></span> <span class="register">rA</span>, <span class="register">rB</span>, <span class="constant">constant</span> with <span class="mnemonic">shr</span> <span class="constant">immediate</span>
+(registerB &gt;&gt;&gt; immediate) used instead of registerB before instruction executes
+
+<span class="type">t</span> <span class="mnemonic"><em>arithmetic_instruction</em></span> <span class="register">rA</span>, <span class="register">rB</span>, <span class="constant">constant</span> with <span class="mnemonic">shar</span> <span class="constant">immediate</span>
+(registerB &gt;&gt; immediate) used instead of registerB before instruction executes</pre>
+<br />
+<h1>Instruction Formats &amp; "Green Sheet"</h1>
+<table class="encoding">
+<tr>
+    <th colspan="6">Non-Memory Instruction</th>
+</tr>
+<tr class="instruction_encoding">
+    <td>opcode</td>
+    <td>shift type</td>
+    <td>shift amount</td>
+    <td>register A</td>
+    <td>register B</td>
+    <td>constant</td>
+</tr>
+<tr class="field_sizes">
+    <td>13</td>
+    <td>2</td>
+    <td>5</td>
+    <td>6</td>
+    <td>6</td>
+    <td>32</td>
+</tr>
+</table>
+<br />
+<table class="encoding">
+<tr>
+    <th colspan="6">Memory Instruction</th>
+</tr>
+<tr class="instruction_encoding">
+    <td>opcode</td>
+    <td>not used</td>
+    <td>register C</td>
+    <td>register A</td>
+    <td>register B</td>
+    <td>constant</td>
+</tr>
+<tr class="field_sizes">
+    <td>13</td>
+    <td>1</td>
+    <td>6</td>
+    <td>6</td>
+    <td>6</td>
+    <td>32</td>
+</tr>
+</table>
+<br />
+<table class="encoding">
+<tr>
+    <th colspan="5">Floating Point Immediate Storage</th>
+</tr>
+<tr class="instruction_encoding">
+    <td>opcode</td>
+    <td>not used</td>
+    <td>register A</td>
+    <td>not used</td>
+    <td>1/2 of double</td>
+</tr>
+<tr class="field_sizes">
+    <td>13</td>
+    <td>7</td>
+    <td>6</td>
+    <td>6</td>
+    <td>32</td>
+</tr>
+</table>
+<br />
+<table class="encoding">
+<tr class="instruction_encoding">
+    <td>&nbsp;</td>
+    <td>i opcode</td>
+    <td>f opcode</td>
+    <td>s opcode</td>
+    <td>o opcode</td>
+</tr>
+<tr class="instruction_encoding">
+    <td><pre>mov
+add
+sub
+and
+or
+xor
+mul
+div
+mod
+shlv
+shrv
+sharv
+jeq
+jne
+jge
+jg
+jle
+jl
+j
+jmp
+call
+ret
+syscall
+load
+save</pre></td>
+    <td><pre>0x3
+0x4
+0x5
+0x9
+0xA
+0xB
+0x6
+0x7
+0x8
+0x0
+0x1
+0x2
+0xE
+0xF
+0x10
+0x11
+0x12
+0x13
+0xC
+0xD
+0x14
+0x16
+0x15
+0x17
+0x18</pre></td>
+    <td><pre>0x803
+0x804
+0x805
+
+
+
+0x806
+0x807
+0x808
+
+
+
+0x80E
+0x80F
+0x810
+0x811
+0x812
+0x813
+
+
+
+
+0x815
+0x817
+0x818</pre></td>
+    <td><pre>0x1003
+0x1004
+
+
+
+
+
+
+
+
+
+
+0x100E
+0x100F
+
+
+
+
+
+
+
+
+0x1015
+0x1017
+0x1018</pre></td>
+    <td><pre>0x1803
+
+
+
+
+
+
+    
+    
+
+
+
+0x180E
+0x180F
+
+
+
+
+
+
+
+
+0x1815
+0x1817
+0x1818</pre></td>
+</tr>
+</table>
+<br />
+Special integer registers:<br />
+<pre>r0 = rZERO = always 0
+r1 = accumulator (by convention)
+r2 = counter (by convention)
+r3, r4 = address storage (by convention)
+r5 = return value (by convention)
+rAT = r60 = assembler temporary
+rGP = r61 = global pointer
+rSP = r62 = stack pointer
+rBP = r63 = base pointer</pre>
+<!--        | i opcode         | f opcode         | s opcode         | o opcode
+--------+------------------+------------------+------------------+------------------
+mov     | 00 000 0000 0011 | 01 000 0000 0011 | 10 000 0000 0011 | 11 000 0000 0011
+add     | 00 000 0000 0100 | 01 000 0000 0100 | 10 000 0000 0100 |
+sub     | 00 000 0000 0101 | 01 000 0000 0101 |                  |
+and     | 00 000 0000 1001 |                  |                  |
+or      | 00 000 0000 1010 |                  |                  |
+xor     | 00 000 0000 1011 |                  |                  |
+mul     | 00 000 0000 0110 | 01 000 0000 0110 |                  |
+div     | 00 000 0000 0111 | 01 000 0000 0111 |                  |
+mod     | 00 000 0000 1000 | 01 000 0000 1000 |                  |
+shlv    | 00 000 0000 0000 |                  |                  |
+shrv    | 00 000 0000 0001 |                  |                  |
+sharv   | 00 000 0000 0010 |                  |                  |
+jeq     | 00 000 0000 1110 | 01 000 0000 1110 | 10 000 0000 1110 | 11 000 0000 1110
+jne     | 00 000 0000 1111 | 01 000 0000 1111 | 10 000 0000 1111 | 11 000 0000 1111
+jge     | 00 000 0001 0000 | 01 000 0001 0000 |                  |
+jg      | 00 000 0001 0001 | 01 000 0001 0001 |                  |
+jle     | 00 000 0001 0010 | 01 000 0001 0010 |                  |
+jl      | 00 000 0001 0011 | 01 000 0001 0011 |                  |
+j       | 00 000 0000 1100 |                  |                  |
+jmp     | 00 000 0000 1101 |                  |                  |
+call    | 00 000 0001 0100 |                  |                  |
+ret     | 00 000 0001 0110 |                  |                  |
+syscall | 00 000 0001 0101 |                  |                  |
+load    | 00 000 0001 0111 | 01 000 0001 0111 | 10 000 0001 0111 | 11 000 0001 0111
+save    | 00 000 0001 1000 | 01 000 0001 1000 | 10 000 0001 0111 | 11 000 0001 0111-->
+</body>

@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Successor - Runtime Simulator</title>
+<meta charset="UTF-8">
+<link href="http://fonts.googleapis.com/css?family=Signika+Negative" rel="stylesheet" type="text/css">
+<link rel="stylesheet" type="text/css" href="successor.css">
+<script src="assembler.js" type="text/javascript"></script>
+<script src="simulator.js" type="text/javascript"></script>
+</head>
+
+<body onload="switchToEditor();">
+<div class="center"><h1>Successor</h1>
+<h2>Runtime Simulator</h2></div>
+
+<!--
+<a class="simulator_tab">Edit Code</a>
+<a class="simulator_tab">Simulate!</a>
+-->
+
+<form>
+<input type="button" class="simulator_tab" value="Edit Code" onclick="switchToEditor();">
+<input type="button" class="simulator_tab" value="Simulate">
+</form>
+
+<div id="tab_contents">
+</div>
+</body>
+
+</html>
