@@ -77,6 +77,10 @@ table.encoding {
     color: white;
 }
 
+.bad_syntax {
+    color: red;
+}
+
 /* Generated using http://www.bestcssbuttongenerator.com/#/PkLUp7fr4B */
 .simulator_tab {
 	/* -moz-box-shadow:inset 0px 39px 0px -24px #9fb4f2; */

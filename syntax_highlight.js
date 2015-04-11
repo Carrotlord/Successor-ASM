@@ -45,7 +45,7 @@ function getParts(line) {
     return results;
 }
 
-function highlightLine(line) {
+function highlightLine(index, line) {
     if (startsWith(line, ";")) {
         var span = document.createElement("span");
         span.className = "comment";
@@ -53,6 +53,34 @@ function highlightLine(line) {
         return span;
     } else {
         var results = getParts(line);
+        /* Try to compile this line first. */
+        var compiled = assembleLine(index, results);
+        if (compiled === "invalid") {
+            var span = document.createElement("span");
+            span.className = "bad_syntax";
+            span.appendChild(document.createTextNode(line + " [SyntaxError]"));
+            return span;
+        }
+        var group = document.createElement("span");
+        /* Reconstruct the line. */
+        var highlighted;
+        for (var key in results) {
+            if (results.hasOwnProperty(key) && results[key] !== null) {
+                highlighted = document.createElement("span");
+                highlighted.appendChild(document.createTextNode(results[key]));
+                group.appendChild(highlighted);
+                if (key === "rA" || key === "rB" || key === "rC") {
+                    highlighted.className = "register";
+                    group.appendChild(document.createTextNode(", "));
+                } else {
+                    highlighted.className = key;
+                    group.appendChild(document.createTextNode(" "));
+                }
+            }
+        }
+        group.appendChild(document.createTextNode("[0x" + compiled.bytecode[0].toString(16) + ":" + compiled.bytecode[1].toString(16) + "]"));
+        console.log(group);
+        return group;
     }
-    return document.createTextNode(line);
+    //return document.createTextNode(line);
 }

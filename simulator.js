@@ -1,5 +1,6 @@
 var _g = {};
 _g.sourceCode = "; Begin coding..."
+_g.labelTable = {};
 
 /**
  * Adapted from:
@@ -25,12 +26,14 @@ function elementExists(elementId) {
     return element !== null;
 }
 
-function saveCode() {
+function saveCode(shouldShowMessage) {
     if (elementExists("code_textarea")) {
         _g.sourceCode = document.getElementById("code_textarea").value;
-        alert("Code saved!");
+        if (shouldShowMessage) {
+            alert("Code saved!");
+        }
     } else {
-        alert("Ypu're not in the editor tab.")
+        alert("You're not in the editor tab.")
     }
 }
 
@@ -53,7 +56,9 @@ function switchToEditor() {
     button.type = "button";
     button.value = "Save";
     button.className = "simulator_tab";
-    button.onclick = saveCode;
+    button.onclick = function() {
+        saveCode(true);
+    };
     form.appendChild(textarea);
     var mainTab = getMainTab();
     mainTab.appendChild(document.createElement("br"));
@@ -64,8 +69,10 @@ function switchToEditor() {
 }
 
 function switchToSimulator() {
+    saveCode(false);
     clearTab();
     var table = document.createElement("table");
+    table.style = "border: 1px solid black;";
     var mainRow = document.createElement("tr");
     var codeTd = document.createElement("td");
     var pre = document.createElement("pre");
@@ -79,7 +86,7 @@ function switchToSimulator() {
             wrapper.appendChild(lineOfCode);
             pre.appendChild(wrapper);
         } else {
-            pre.appendChild(highlightLine(lines[i]));
+            pre.appendChild(highlightLine(i, lines[i]));
         }
         pre.appendChild(document.createElement("br"));
     }
