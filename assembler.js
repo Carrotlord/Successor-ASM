@@ -7,14 +7,31 @@ function CodeLine(index, bytecode, originalLine) {
 CodeLine.prototype.execute = function() {
     /* Exit program on j -1 */
     console.log([this.getOpcode().toString(16), this.getConstant()]);
-    if (this.getOpcode() === 0b1100) {
-        var addressPlusOne = this.getConstant();
-        if (this.getConstant() === -1) {
-            throw "Exiting...";
-        } else {
-            _g.lastIndex = _g.ip;
-            _g.ip = addressPlusOne - 1;
-        }
+    switch (this.getOpcode()) {
+        case 0b1100: /* j */
+            var addressPlusOne = this.getConstant();
+            if (addressPlusOne === -1) {
+                throw "Exiting...";
+            } else {
+                _g.lastIndex = _g.ip;
+                _g.ip = addressPlusOne - 1;
+            }
+            break;
+        case 0b11: /* mov */
+            // TODO: check for types
+            this.registerOperation(function(x, y) { return y; },
+                                   function(x, y) { return x + y; });
+            break;
+        case 0b100: /* add */
+            // TODO: check for types
+            this.registerOperation(function(x, y) { return x + y; },
+                                   function(x, y) { return x + y; });
+            break;
+        case 0b10000: /* jge */
+            this.compareOperation(function(a, b) { return a >= b; });
+            break;
+        default: /* nop */
+            break;
     }
 }
 
@@ -35,6 +52,29 @@ CodeLine.prototype.getRegC = function() {
 }
 CodeLine.prototype.getConstant = function() {
     return this.bytecode[1];
+}
+
+CodeLine.prototype.registerOperation = function(primaryOp, subordOp) {
+    var regA = this.getRegA();
+    var regB = this.getRegB();
+    var constant = this.getConstant();
+    _g.intRegisters[regA] = primaryOp(_g.intRegisters[regA], subordOp(regB, constant));
+    /* Clobber rZERO. */
+    _g.intRegisters[0] = 0;
+    updateVisualRegister(regA);
+}
+
+CodeLine.prototype.compareOperation = function(comparator) {
+    var regA = this.getRegA();
+    var regB = this.getRegB();
+    var addressPlusOne = this.getConstant();
+    if (comparator(_g.intRegisters[regA], _g.intRegisters[regB])) {
+        if (addressPlusOne === -1) {
+            throw "Exiting...";
+        }
+        _g.lastIndex = _g.ip;
+        _g.ip = addressPlusOne - 1;
+    }
 }
 
 function makeNop(index, originalLine) {

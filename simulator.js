@@ -6,6 +6,9 @@ _g.instructionDelay = 200; // 5 instructions per second
 _g.ip = 0; // instruction pointer
 _g.programTimeoutID = -1;
 _g.lastIndex = -1;
+_g.intRegisters = [];
+_g.lastModifiedReg = -1;
+_g.STACK_BOUNDARY = 0x07E00000;
 
 /**
  * Adapted from:
@@ -15,6 +18,18 @@ function removeAllChildren(node) {
     while (node.firstChild !== null) {
         node.removeChild(node.firstChild);
     }
+}
+
+function resetSimulation() {
+    _g.ip = 0;
+    _g.programCode = [];
+    _g.intRegisters = [];
+    for (var i = 0; i < 64; i++) {
+        _g.intRegisters.push(0);
+    }
+    _g.intRegisters[61] = 0x100000;
+    _g.intRegisters[62] = _g.STACK_BOUNDARY;
+    _g.intRegisters[63] = _g.STACK_BOUNDARY;
 }
 
 function getMainTab() {
@@ -38,7 +53,9 @@ function saveCode(shouldShowMessage) {
             alert("Code saved!");
         }
     } else {
-        alert("You're not in the editor tab.")
+        if (shouldShowMessage) {
+            alert("You're not in the editor tab.")
+        }
     }
 }
 
@@ -104,13 +121,22 @@ function switchToSimulator() {
     codeTd.appendChild(pre);
     mainRow.appendChild(codeTd);
     spacerTd = document.createElement("td");
-    spacerTd.style = "width: 55px;";
+    spacerTd.style = "width: 45px;";
     mainRow.appendChild(spacerTd);
     regTableTd = document.createElement("table");
-    regTableTd.appendChild(createRegisterTable(20));
+    regTableTd.appendChild(createRegisterTable(15));
     mainRow.appendChild(regTableTd);
+    spacerTd = document.createElement("td");
+    spacerTd.style = "width: 10px;";
+    mainRow.appendChild(spacerTd);
+    stackTableTd = document.createElement("table");
+    stackTableTd.appendChild(createVisualStack(19));
+    mainRow.appendChild(stackTableTd);
     table.appendChild(mainRow);
     getMainTab().appendChild(table);
+    editVisualRegister(61);
+    editVisualRegister(62);
+    editVisualRegister(63);
 }
 
 function selectLine(wrapper, selectStyle, index) {
@@ -127,6 +153,7 @@ function selectLine(wrapper, selectStyle, index) {
 }
 
 function executeSuccessorStep() {
+    resetLastVisualRegister();
     var wrapper = document.getElementById("ln" + _g.ip);
     var lastIndex = _g.ip - 1;
     if (_g.lastIndex !== -1) {
@@ -157,6 +184,38 @@ function executeSuccessorStep() {
     _g.programTimeoutID = window.setTimeout(executeSuccessorStep, _g.instructionDelay);
 }
 
+function resetLastVisualRegister() {
+    if (_g.lastModifiedReg !== -1) {
+        regDisplay = document.getElementById("r" + _g.lastModifiedReg);
+        removeAllChildren(regDisplay);
+        regDisplay.appendChild(document.createTextNode(_g.intRegisters[_g.lastModifiedReg]));
+        regDisplay.style = "font-family: Consolas, 'Lucida Console', 'Courier New', monospace;" +
+                           " -moz-border-radius:6px; -webkit-border-radius:6px; border-radius:6px;" +
+                           " background-color: mediumseagreen; color: white; width: 65px; text-align: center;";
+        _g.lastModifiedReg = -1;
+    }
+}
+
+function updateVisualRegister(reg) {
+    var regDisplay = document.getElementById("r" + reg);
+    if (regDisplay !== null) {
+        removeAllChildren(regDisplay);
+        regDisplay.appendChild(document.createTextNode(_g.intRegisters[reg]));
+        regDisplay.style = "font-family: Consolas, 'Lucida Console', 'Courier New', monospace;" +
+                           " -moz-border-radius:6px; -webkit-border-radius:6px; border-radius:6px;" +
+                           " background-color: green; color: white; width: 65px; text-align: center;";
+    }
+    _g.lastModifiedReg = reg;
+}
+
+function editVisualRegister(reg) {
+    var regDisplay = document.getElementById("r" + reg);
+    if (regDisplay !== null) {
+        removeAllChildren(regDisplay);
+        regDisplay.appendChild(document.createTextNode(_g.intRegisters[reg]));
+    }
+}
+
 function createRegisterTable(numRegisters) {
     // TODO: move styles to CSS file
     var monospaceFont = "font-family: Consolas, 'Lucida Console', 'Courier New', monospace;";
@@ -166,6 +225,18 @@ function createRegisterTable(numRegisters) {
     var zeroStyle = monospaceFont + borderRadius + " background-color: brown; color: white; width: 65px; text-align: center;";
     var regTable = document.createElement("table");
     regTable.style = "border: 1px darkgray solid;" + borderRadius;
+    
+    var titleRow = document.createElement("tr");
+    var titleInner = document.createElement("td");
+    var titleTextLabel = document.createElement("span")
+    titleTextLabel.style.fontWeight = "bold";
+    titleInner.style.textAlign = "center";
+    titleInner.colSpan = "2";
+    titleTextLabel.appendChild(document.createTextNode("Registers"));
+    titleInner.appendChild(titleTextLabel);
+    titleRow.appendChild(titleInner);
+    regTable.appendChild(titleRow);
+    
     var rZero = document.createElement("tr");
     var leftSide = document.createElement("td");
     leftSide.style = monospaceFont + " font-weight: bold; width: 40px;";
@@ -188,9 +259,53 @@ function createRegisterTable(numRegisters) {
         rightSide = document.createElement("td");
         rightSide.style = rightSideStyle;
         rightSide.appendChild(document.createTextNode("0"));
+        rightSide.id = "r" + i;
+        regRow.appendChild(leftSide);
+        regRow.appendChild(rightSide);
+        regTable.appendChild(regRow);
+    }
+    var specialRegisters = ["AT", "GP", "SP", "BP"];
+    for (var i = 0; i < 4; i++) {
+        regRow = document.createElement("tr");
+        leftSide = document.createElement("td");
+        leftSide.style = leftSideStyle;
+        leftSide.appendChild(document.createTextNode("r" + specialRegisters[i]));
+        rightSide = document.createElement("td");
+        rightSide.style = rightSideStyle;
+        rightSide.appendChild(document.createTextNode("0"));
+        rightSide.id = "r" + (i + 60);
         regRow.appendChild(leftSide);
         regRow.appendChild(rightSide);
         regTable.appendChild(regRow);
     }
     return regTable;
+}
+
+function createVisualStack(numStackSlots) {
+    var stackBoundary = _g.STACK_BOUNDARY;
+    // TODO: move styles to CSS file
+    var monospaceFont = "font-family: Consolas, 'Lucida Console', 'Courier New', monospace;";
+    var borderRadius = " -moz-border-radius:6px; -webkit-border-radius:6px; border-radius:6px;";
+    var slotStyle = monospaceFont + borderRadius + " background-color: slategray; color: white; width: 80px; text-align: center;";
+    var stackTable = document.createElement("table");
+    stackTable.style = "border: 1px darkgray solid;" + borderRadius;
+    var stackRow = document.createElement("tr");
+    var stackInner = document.createElement("td");
+    var stackTextLabel = document.createElement("span")
+    stackTextLabel.style.fontWeight = "bold";
+    stackInner.style.textAlign = "center";
+    stackTextLabel.appendChild(document.createTextNode("The Stack"));
+    stackInner.appendChild(stackTextLabel);
+    stackRow.appendChild(stackInner);
+    stackTable.appendChild(stackRow);
+    for (var i = _g.STACK_BOUNDARY; i >= _g.STACK_BOUNDARY - numStackSlots; i--) {
+        stackRow = document.createElement("tr");
+        stackInner = document.createElement("td");
+        stackInner.style = slotStyle;
+        stackInner.appendChild(document.createTextNode("0"));
+        stackInner.id = "st" + i;
+        stackRow.appendChild(stackInner);
+        stackTable.appendChild(stackRow);
+    }
+    return stackTable;
 }

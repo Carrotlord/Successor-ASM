@@ -2,17 +2,19 @@
 i mov r2, rZERO, 0    ;line 1
 i mov r1, rZERO, 0    ;line 2
 i mov r6, rZERO, 9    ;line 3
-jge r2, r6, 7         ;line 4
+jge r2, r6, 8         ;line 4
 i add r1, rZERO, 100  ;line 5
-j 4                   ;line 6
-j -1                  ;line 7
+i add r2, rZERO, 1    ;line 6
+j 4                   ;line 7
+j -1                  ;line 8
 
 
 ; Simple for loop
 i mov r2, rZERO, 0
 i mov r1, rZERO, 0
 i mov r6, rZERO, 9
-jge r2, r6, 7
+jge r2, r6, 8
 i add r1, rZERO, 100
+i add r2, rZERO, 1
 j 4
 j -1

@@ -10,7 +10,7 @@
 <script src="simulator.js" type="text/javascript"></script>
 </head>
 
-<body onload="switchToEditor();">
+<body onload="resetSimulation(); switchToEditor();">
 <div class="center">
 <h1>Successor</h1>
 <h2>Runtime Simulator</h2>
@@ -26,6 +26,7 @@
 <input type="button" class="simulator_tab" value="Simulator" onclick="switchToSimulator();">
 <input type="button" class="simulator_tab" value="Run!" onclick="executeSuccessorStep();">
 <input type="button" class="simulator_tab" value="Stop" onclick="window.clearTimeout(_g.programTimeoutID);">
+<input type="button" class="simulator_tab" value="Reset All" onclick="resetSimulation(); switchToSimulator();">
 </form>
 
 <div id="tab_contents">
