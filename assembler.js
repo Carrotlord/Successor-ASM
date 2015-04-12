@@ -5,7 +5,32 @@ function CodeLine(index, bytecode, originalLine) {
 }
 
 CodeLine.prototype.execute = function() {
-    // TODO: Execute myself
+    /* Exit program on j -1 */
+    console.log([this.getOpcode().toString(16), this.getConstant()]);
+    if (this.getOpcode() === 0b1100) {
+        if (this.getConstant() === -1) {
+            throw "Exiting...";
+        }
+    }
+}
+
+CodeLine.prototype.getOpcode = function() {
+    return (this.bytecode[0] & 0b00111111111110000000000000000000) >> 19;
+}
+CodeLine.prototype.getType = function() {
+    return (this.bytecode[0] & 0b11000000000000000000000000000000) >> 30;
+}
+CodeLine.prototype.getRegA = function() {
+    return (this.bytecode[0] & 0b00000000000000000000111111000000) >> 6;
+}
+CodeLine.prototype.getRegB = function() {
+    return this.bytecode[0] & 0b00000000000000000000000000111111;
+}
+CodeLine.prototype.getRegC = function() {
+    return (this.bytecode[0] & 0b00000000000000111111000000000000) >> 12;
+}
+CodeLine.prototype.getConstant = function() {
+    return this.bytecode[1];
 }
 
 function makeNop(index, originalLine) {
@@ -67,15 +92,20 @@ function assembleLine(index, results, originalLine) {
                     if (isNaN(value)) {
                         return "invalid";
                     } else {
-                        return value;
+                        return value % 64;
                     }
             }
         }
     }
+    var firstFields;
     try {
-        var firstFields = (types[results.type] << 30) | (opcodes[results.mnemonic] << 19) | (compileRegister(results.rA) << 6) | (compileRegister(results.rB));
+        firstFields = (types[results.type] << 30) | (opcodes[results.mnemonic] << 19) | (compileRegister(results.rA) << 6) | (compileRegister(results.rB));
     } catch (ex) {
-        return "invalid";
+        if (results.mnemonic === "j") {
+            firstFields = 0b1100 << 19;
+        } else {
+            return "invalid";
+        }
     }
     var lastFields = parseInt(results.constant, 10);
     if (isNaN(lastFields)) {

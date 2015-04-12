@@ -23,8 +23,9 @@
 
 <form>
 <input type="button" class="simulator_tab" value="Edit Code" onclick="switchToEditor();">
-<input type="button" class="simulator_tab" value="Simulate" onclick="switchToSimulator();">
+<input type="button" class="simulator_tab" value="Simulator" onclick="switchToSimulator();">
 <input type="button" class="simulator_tab" value="Run!" onclick="executeSuccessorStep();">
+<input type="button" class="simulator_tab" value="Stop" onclick="window.clearTimeout(_g.programTimeoutID);">
 </form>
 
 <div id="tab_contents">

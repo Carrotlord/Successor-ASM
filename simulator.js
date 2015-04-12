@@ -4,6 +4,7 @@ _g.labelTable = {};
 _g.programCode = [];
 _g.instructionDelay = 200; // 5 instructions per second
 _g.ip = 0; // instruction pointer
+_g.programTimeoutID = -1;
 
 /**
  * Adapted from:
@@ -118,7 +119,6 @@ function selectLine(wrapper, selectStyle, index) {
 }
 
 function executeSuccessorStep() {
-    console.log("ln" + _g.ip);
     var wrapper = document.getElementById("ln" + _g.ip);
     var lastIndex = _g.ip - 1;
     if (lastIndex < 0) {
@@ -131,9 +131,16 @@ function executeSuccessorStep() {
     if (lastWrapper !== null) {
         selectLine(lastWrapper, "", lastIndex);
     }
+    var instruction = _g.programCode[_g.ip];
+    try {
+        instruction.execute();
+    } catch (ex) {
+        selectLine(wrapper, "stopped", _g.ip);
+        return;
+    }
     _g.ip++;
     if (_g.ip >= _g.programCode.length) {
         _g.ip = 0;
     }
-    window.setTimeout(executeSuccessorStep, _g.instructionDelay);
+    _g.programTimeoutID = window.setTimeout(executeSuccessorStep, _g.instructionDelay);
 }

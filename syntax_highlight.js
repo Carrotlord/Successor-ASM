@@ -18,9 +18,8 @@ function getParts(line) {
         shiftAmount: null
     };
     var pieces = line.replace(/,/g, " ").split(" ");
-    console.log(pieces);
     var typeRegex = /^(i|f|s|o)$/;
-    var mnemonicRegex = /^[a-z]{2,}$/;
+    var mnemonicRegex = /^[a-z]+$/;
     var registerRegex = /^r(\d|[A-Z])+$/;
     var constantRegex = /^-?(\d+|0x\d+)$/;
     for (var i = 0; i < pieces.length; i++) {
@@ -98,7 +97,6 @@ function highlightLine(index, line, onlyGetAnnotation) {
             }
         }
         group.appendChild(document.createTextNode(annotation));
-        console.log(group);
         return group;
     }
     //return document.createTextNode(line);

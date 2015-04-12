@@ -1,0 +1,18 @@
+; Simple for loop
+i mov r2, rZERO, 0    ;line 1
+i mov r1, rZERO, 0    ;line 2
+i mov r6, rZERO, 9    ;line 3
+jge r2, r6, 7         ;line 4
+i add r1, rZERO, 100  ;line 5
+j 4                   ;line 6
+j -1                  ;line 7
+
+
+; Simple for loop
+i mov r2, rZERO, 0
+i mov r1, rZERO, 0
+i mov r6, rZERO, 9
+jge r2, r6, 7
+i add r1, rZERO, 100
+j 4
+j -1
