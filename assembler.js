@@ -55,11 +55,14 @@ CodeLine.prototype.execute = function() {
             _g.ip = functionAddressPlusOne - 1;
             break;
         case 0b10110: /* ret */
-            console.log("reached!");
             var addressPlusOne = popStack();
             console.log("Just returning to... " + addressPlusOne);
             _g.lastIndex = _g.ip;
             _g.ip = addressPlusOne - 1;
+            break;
+        case 0b110: /* mul */
+            this.registerOperation(function(x, y) { return x * y; },
+                                   function(x, y) { return x + y; });
             break;
         default: /* nop */
             break;
