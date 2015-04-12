@@ -5,6 +5,7 @@ _g.programCode = [];
 _g.instructionDelay = 200; // 5 instructions per second
 _g.ip = 0; // instruction pointer
 _g.programTimeoutID = -1;
+_g.lastIndex = -1;
 
 /**
  * Adapted from:
@@ -76,7 +77,7 @@ function switchToSimulator() {
     saveCode(false);
     clearTab();
     var table = document.createElement("table");
-    table.style = "border: 1px solid black;";
+    //table.style = "border: 1px solid black;";
     var mainRow = document.createElement("tr");
     var codeTd = document.createElement("td");
     var pre = document.createElement("pre");
@@ -99,8 +100,15 @@ function switchToSimulator() {
         }
         pre.appendChild(document.createElement("br"));
     }
+    codeTd.style = "vertical-align: top;";
     codeTd.appendChild(pre);
     mainRow.appendChild(codeTd);
+    spacerTd = document.createElement("td");
+    spacerTd.style = "width: 55px;";
+    mainRow.appendChild(spacerTd);
+    regTableTd = document.createElement("table");
+    regTableTd.appendChild(createRegisterTable(20));
+    mainRow.appendChild(regTableTd);
     table.appendChild(mainRow);
     getMainTab().appendChild(table);
 }
@@ -121,6 +129,10 @@ function selectLine(wrapper, selectStyle, index) {
 function executeSuccessorStep() {
     var wrapper = document.getElementById("ln" + _g.ip);
     var lastIndex = _g.ip - 1;
+    if (_g.lastIndex !== -1) {
+        lastIndex = _g.lastIndex;
+        _g.lastIndex = -1;
+    }
     if (lastIndex < 0) {
         lastIndex += _g.programCode.length;
     }
@@ -143,4 +155,42 @@ function executeSuccessorStep() {
         _g.ip = 0;
     }
     _g.programTimeoutID = window.setTimeout(executeSuccessorStep, _g.instructionDelay);
+}
+
+function createRegisterTable(numRegisters) {
+    // TODO: move styles to CSS file
+    var monospaceFont = "font-family: Consolas, 'Lucida Console', 'Courier New', monospace;";
+    var borderRadius = " -moz-border-radius:6px; -webkit-border-radius:6px; border-radius:6px;";
+    var leftSideStyle = monospaceFont + borderRadius + " font-weight: bold; width: 40px;";
+    var rightSideStyle = monospaceFont + borderRadius + " background-color: slategray; color: white; width: 65px; text-align: center;";
+    var zeroStyle = monospaceFont + borderRadius + " background-color: brown; color: white; width: 65px; text-align: center;";
+    var regTable = document.createElement("table");
+    regTable.style = "border: 1px darkgray solid;" + borderRadius;
+    var rZero = document.createElement("tr");
+    var leftSide = document.createElement("td");
+    leftSide.style = monospaceFont + " font-weight: bold; width: 40px;";
+    // leftSide.fontWeight = "bold";
+    leftSide.appendChild(document.createTextNode("rZERO"));
+    var rightSide = document.createElement("td");
+    rightSide.style = zeroStyle;
+    //rightSide.backgroundColor = "brown";
+    //rightSide.color = "white";
+    rightSide.appendChild(document.createTextNode("0"));
+    rZero.appendChild(leftSide);
+    rZero.appendChild(rightSide);
+    regTable.appendChild(rZero);
+    var regRow;
+    for (var i = 1; i <= numRegisters; i++) {
+        regRow = document.createElement("tr");
+        leftSide = document.createElement("td");
+        leftSide.style = leftSideStyle;
+        leftSide.appendChild(document.createTextNode("r" + i));
+        rightSide = document.createElement("td");
+        rightSide.style = rightSideStyle;
+        rightSide.appendChild(document.createTextNode("0"));
+        regRow.appendChild(leftSide);
+        regRow.appendChild(rightSide);
+        regTable.appendChild(regRow);
+    }
+    return regTable;
 }

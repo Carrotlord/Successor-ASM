@@ -8,8 +8,12 @@ CodeLine.prototype.execute = function() {
     /* Exit program on j -1 */
     console.log([this.getOpcode().toString(16), this.getConstant()]);
     if (this.getOpcode() === 0b1100) {
+        var addressPlusOne = this.getConstant();
         if (this.getConstant() === -1) {
             throw "Exiting...";
+        } else {
+            _g.lastIndex = _g.ip;
+            _g.ip = addressPlusOne - 1;
         }
     }
 }
