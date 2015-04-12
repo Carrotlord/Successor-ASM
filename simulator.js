@@ -9,6 +9,7 @@ _g.lastIndex = -1;
 _g.intRegisters = [];
 _g.lastModifiedReg = -1;
 _g.STACK_BOUNDARY = 0x07E00000;
+_g.intMemory = [];
 
 /**
  * Adapted from:
@@ -153,6 +154,11 @@ function selectLine(wrapper, selectStyle, index) {
 }
 
 function executeSuccessorStep() {
+    if (_g.ip >= _g.programCode.length || _g.ip < 0) {
+        selectLine(wrapper, "stopped", _g.programCode.length - 1);
+        alert("Program terminated (jumped to invalid address " + _g.ip + ")");
+        return;
+    }
     resetLastVisualRegister();
     var wrapper = document.getElementById("ln" + _g.ip);
     var lastIndex = _g.ip - 1;
@@ -179,7 +185,10 @@ function executeSuccessorStep() {
     }
     _g.ip++;
     if (_g.ip >= _g.programCode.length) {
-        _g.ip = 0;
+        // _g.ip = 0;
+        selectLine(wrapper, "stopped", _g.programCode.length - 1);
+        alert("Program terminated (end of file)");
+        return;
     }
     _g.programTimeoutID = window.setTimeout(executeSuccessorStep, _g.instructionDelay);
 }

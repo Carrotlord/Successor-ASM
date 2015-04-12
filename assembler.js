@@ -5,12 +5,12 @@ function CodeLine(index, bytecode, originalLine) {
 }
 
 CodeLine.prototype.execute = function() {
-    /* Exit program on j -1 */
-    console.log([this.getOpcode().toString(16), this.getConstant()]);
+    console.log(_g.intMemory);
     switch (this.getOpcode()) {
         case 0b1100: /* j */
             var addressPlusOne = this.getConstant();
             if (addressPlusOne === -1) {
+                /* Exit program on j -1 */
                 throw "Exiting...";
             } else {
                 _g.lastIndex = _g.ip;
@@ -30,6 +30,37 @@ CodeLine.prototype.execute = function() {
         case 0b10000: /* jge */
             this.compareOperation(function(a, b) { return a >= b; });
             break;
+        case 0b1110: /* jeq */
+            this.compareOperation(function(a, b) { return a === b; });
+            break;
+        case 0b101: /* sub */
+            this.registerOperation(function(x, y) { return x - y; },
+                                   function(x, y) { return x + y; });
+            break;
+        case 0b11000: /* save */
+            var regAValue = _g.intRegisters[this.getRegA()];
+            var regBValue = _g.intRegisters[this.getRegB()];
+            var regCValue = _g.intRegisters[this.getRegC()];
+            _g.intMemory[-(regBValue + regCValue + this.getConstant() - _g.STACK_BOUNDARY + 1)] = regAValue;
+            break;
+        case 0b10111:
+            var regBValue = _g.intRegisters[this.getRegB()];
+            var regCValue = _g.intRegisters[this.getRegC()];
+            _g.intRegisters[this.getRegA()] = _g.intMemory[-(regBValue + regCValue + this.getConstant() - _g.STACK_BOUNDARY + 1)];
+            break;
+        case 0b10100: /* call */
+            pushStack(_g.ip + 1);
+            var functionAddressPlusOne = this.getConstant();
+            _g.lastIndex = _g.ip;
+            _g.ip = functionAddressPlusOne - 1;
+            break;
+        case 0b10110: /* ret */
+            console.log("reached!");
+            var addressPlusOne = popStack();
+            console.log("Just returning to... " + addressPlusOne);
+            _g.lastIndex = _g.ip;
+            _g.ip = addressPlusOne - 1;
+            break;
         default: /* nop */
             break;
     }
@@ -38,18 +69,23 @@ CodeLine.prototype.execute = function() {
 CodeLine.prototype.getOpcode = function() {
     return (this.bytecode[0] & 0b00111111111110000000000000000000) >> 19;
 }
+
 CodeLine.prototype.getType = function() {
     return (this.bytecode[0] & 0b11000000000000000000000000000000) >> 30;
 }
+
 CodeLine.prototype.getRegA = function() {
     return (this.bytecode[0] & 0b00000000000000000000111111000000) >> 6;
 }
+
 CodeLine.prototype.getRegB = function() {
     return this.bytecode[0] & 0b00000000000000000000000000111111;
 }
+
 CodeLine.prototype.getRegC = function() {
     return (this.bytecode[0] & 0b00000000000000111111000000000000) >> 12;
 }
+
 CodeLine.prototype.getConstant = function() {
     return this.bytecode[1];
 }
@@ -58,7 +94,7 @@ CodeLine.prototype.registerOperation = function(primaryOp, subordOp) {
     var regA = this.getRegA();
     var regB = this.getRegB();
     var constant = this.getConstant();
-    _g.intRegisters[regA] = primaryOp(_g.intRegisters[regA], subordOp(regB, constant));
+    _g.intRegisters[regA] = primaryOp(_g.intRegisters[regA], subordOp(_g.intRegisters[regB], constant));
     /* Clobber rZERO. */
     _g.intRegisters[0] = 0;
     updateVisualRegister(regA);
@@ -75,6 +111,23 @@ CodeLine.prototype.compareOperation = function(comparator) {
         _g.lastIndex = _g.ip;
         _g.ip = addressPlusOne - 1;
     }
+}
+
+function popStack() {
+    var rSP = 62;
+    var returnValue = _g.intMemory[-(_g.intRegisters[rSP] - _g.STACK_BOUNDARY + 1)];
+    // var returnValue = _g.intMemory.pop();
+    _g.intRegisters[rSP]++;
+    updateVisualRegister(rSP);
+    return returnValue;
+}
+
+function pushStack(value) {
+    var rSP = 62;
+    _g.intRegisters[rSP]--;
+    _g.intMemory[-(_g.intRegisters[rSP] - _g.STACK_BOUNDARY + 1)] = value;
+    // _g.intMemory.push(value);
+    updateVisualRegister(rSP);
 }
 
 function makeNop(index, originalLine) {
@@ -147,6 +200,10 @@ function assembleLine(index, results, originalLine) {
     } catch (ex) {
         if (results.mnemonic === "j") {
             firstFields = 0b1100 << 19;
+        } else if (results.mnemonic === "call") {
+            firstFields = 0b10100 << 19;
+        } else if (results.mnemonic === "ret") {
+            firstFields = 0b10110 << 19;
         } else {
             return "invalid";
         }

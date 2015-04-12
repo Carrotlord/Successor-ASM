@@ -8,7 +8,7 @@
 def factorial(x):
     if x == 0:
         return 1
-    return factorial(x - 1)
+    return x * factorial(x - 1)
 
 i mov r1, rZERO, 10
 i sub rSP, rZERO, 1
@@ -86,8 +86,9 @@ ret                       ; 18
 i mov r5, rZERO, 1        ; 19
 ret                       ; 20
 
+
 ; Recursive factorial (returns factorial(10))
-i mov r1, rZERO, 10
+i mov r1, rZERO, 4
 i sub rSP, rZERO, 1
 i save r1, rSP, rZERO, 0
 call 7
@@ -98,12 +99,15 @@ i save rBP, rSP, rZERO, 0
 i mov rBP, rSP, 0
 ; grab first argument
 load r1, rBP, rZERO, 2
-jeq r1, rZERO, 19
+jeq r1, rZERO, 20
 i sub r1, rZERO, 1
 ; push r1
 i sub rSP, rZERO, 1
-save r1, rSP, rZERO, 0
+i save r1, rSP, rZERO, 0
 call 7
-ret
+i add rSP, rZERO, 1
+j 21
 i mov r5, rZERO, 1
+i load rBP, rSP, rZERO, 0
+add rSP, rZERO, 1
 ret
