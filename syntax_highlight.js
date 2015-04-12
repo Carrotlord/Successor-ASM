@@ -22,7 +22,7 @@ function getParts(line) {
     var typeRegex = /^(i|f|s|o)$/;
     var mnemonicRegex = /^[a-z]{2,}$/;
     var registerRegex = /^r(\d|[A-Z])+$/;
-    var constantRegex = /^(\d+|0x\d+)$/;
+    var constantRegex = /^-?(\d+|0x\d+)$/;
     for (var i = 0; i < pieces.length; i++) {
         var token = pieces[i];
         if (token.search(typeRegex) !== -1 && results.type === null) {
@@ -45,8 +45,12 @@ function getParts(line) {
     return results;
 }
 
-function highlightLine(index, line) {
+function highlightLine(index, line, onlyGetAnnotation) {
     if (startsWith(line, ";")) {
+        if (onlyGetAnnotation) {
+            return "";
+        }
+        _g.programCode[index] = makeNop(index, line);
         var span = document.createElement("span");
         span.className = "comment";
         span.appendChild(document.createTextNode(line));
@@ -54,12 +58,27 @@ function highlightLine(index, line) {
     } else {
         var results = getParts(line);
         /* Try to compile this line first. */
-        var compiled = assembleLine(index, results);
+        var compiled = assembleLine(index, results, line);
+        var annotation;
         if (compiled === "invalid") {
+            annotation = " [SyntaxError]";
+            if (onlyGetAnnotation) {
+                return annotation;
+            }
+            _g.programCode[index] = makeNop(index, line);
             var span = document.createElement("span");
             span.className = "bad_syntax";
-            span.appendChild(document.createTextNode(line + " [SyntaxError]"));
+            /* if (_g.programCode.hasOwnProperty("" + index)) {
+                compiled.originalLine += " [SyntaxError]";
+            } */
+            span.appendChild(document.createTextNode(line + annotation));
             return span;
+        } else {
+            annotation = "[0x" + compiled.bytecode[0].toString(16) + ":" + compiled.bytecode[1].toString(16) + "]";
+            if (onlyGetAnnotation) {
+                return " " + annotation;
+            }
+            _g.programCode[index] = compiled;
         }
         var group = document.createElement("span");
         /* Reconstruct the line. */
@@ -78,7 +97,7 @@ function highlightLine(index, line) {
                 }
             }
         }
-        group.appendChild(document.createTextNode("[0x" + compiled.bytecode[0].toString(16) + ":" + compiled.bytecode[1].toString(16) + "]"));
+        group.appendChild(document.createTextNode(annotation));
         console.log(group);
         return group;
     }

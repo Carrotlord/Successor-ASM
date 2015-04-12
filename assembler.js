@@ -1,13 +1,18 @@
-function CodeLine(index, bytecode) {
+function CodeLine(index, bytecode, originalLine) {
     this.index = index;
     this.bytecode = bytecode;
+    this.originalLine = originalLine;
 }
 
 CodeLine.prototype.execute = function() {
     // TODO: Execute myself
 }
 
-function assembleLine(index, results) {
+function makeNop(index, originalLine) {
+    return new CodeLine(index, [0, 0], originalLine);
+}
+
+function assembleLine(index, results, originalLine) {
     var types = {
         i: 0b00,
         f: 0b01,
@@ -76,5 +81,5 @@ function assembleLine(index, results) {
     if (isNaN(lastFields)) {
         lastFields = 0;
     }
-    return new CodeLine(index, [firstFields, lastFields]);
+    return new CodeLine(index, [firstFields, lastFields], originalLine);
 }
