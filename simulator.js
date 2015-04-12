@@ -17,6 +17,9 @@ _g.previousStackPosition = 0;
  * http://stackoverflow.com/questions/3955229/remove-all-child-elements-of-a-dom-node-in-javascript
  */
 function removeAllChildren(node) {
+    if (typeof node === "undefined") {
+        return;
+    }
     while (node.firstChild !== null) {
         node.removeChild(node.firstChild);
     }
@@ -96,7 +99,7 @@ function switchToSimulator() {
     saveCode(false);
     clearTab();
     var table = document.createElement("table");
-    //table.style = "border: 1px solid black;";
+    //table.style.cssText = "border: 1px solid black;";
     var mainRow = document.createElement("tr");
     var codeTd = document.createElement("td");
     var pre = document.createElement("pre");
@@ -119,17 +122,17 @@ function switchToSimulator() {
         }
         pre.appendChild(document.createElement("br"));
     }
-    codeTd.style = "vertical-align: top;";
+    codeTd.style.cssText = "vertical-align: top;";
     codeTd.appendChild(pre);
     mainRow.appendChild(codeTd);
     spacerTd = document.createElement("td");
-    spacerTd.style = "width: 45px;";
+    spacerTd.style.cssText = "width: 45px;";
     mainRow.appendChild(spacerTd);
     regTableTd = document.createElement("table");
     regTableTd.appendChild(createRegisterTable(15));
     mainRow.appendChild(regTableTd);
     spacerTd = document.createElement("td");
-    spacerTd.style = "width: 10px;";
+    spacerTd.style.cssText = "width: 10px;";
     mainRow.appendChild(spacerTd);
     stackTableTd = document.createElement("table");
     stackTableTd.appendChild(createVisualStack(22));
@@ -199,7 +202,7 @@ function resetLastVisualRegister() {
         regDisplay = document.getElementById("r" + _g.lastModifiedReg);
         removeAllChildren(regDisplay);
         regDisplay.appendChild(document.createTextNode(_g.intRegisters[_g.lastModifiedReg]));
-        regDisplay.style = "font-family: Consolas, 'Lucida Console', 'Courier New', monospace;" +
+        regDisplay.style.cssText = "font-family: Consolas, 'Lucida Console', 'Courier New', monospace;" +
                            " -moz-border-radius:6px; -webkit-border-radius:6px; border-radius:6px;" +
                            " background-color: mediumseagreen; color: white; width: 65px; text-align: center;";
         _g.lastModifiedReg = -1;
@@ -211,7 +214,7 @@ function updateVisualRegister(reg) {
     if (regDisplay !== null) {
         removeAllChildren(regDisplay);
         regDisplay.appendChild(document.createTextNode(_g.intRegisters[reg]));
-        regDisplay.style = "font-family: Consolas, 'Lucida Console', 'Courier New', monospace;" +
+        regDisplay.style.cssText = "font-family: Consolas, 'Lucida Console', 'Courier New', monospace;" +
                            " -moz-border-radius:6px; -webkit-border-radius:6px; border-radius:6px;" +
                            " background-color: green; color: white; width: 65px; text-align: center;";
     }
@@ -280,7 +283,7 @@ function createRegisterTable(numRegisters) {
     var rightSideStyle = monospaceFont + borderRadius + " background-color: slategray; color: white; width: 65px; text-align: center;";
     var zeroStyle = monospaceFont + borderRadius + " background-color: brown; color: white; width: 65px; text-align: center;";
     var regTable = document.createElement("table");
-    regTable.style = "border: 1px darkgray solid;" + borderRadius;
+    regTable.style.cssText = "border: 1px darkgray solid;" + borderRadius;
     
     var titleRow = document.createElement("tr");
     var titleInner = document.createElement("td");
@@ -295,11 +298,11 @@ function createRegisterTable(numRegisters) {
     
     var rZero = document.createElement("tr");
     var leftSide = document.createElement("td");
-    leftSide.style = monospaceFont + " font-weight: bold; width: 40px;";
+    leftSide.style.cssText = monospaceFont + " font-weight: bold; width: 40px;";
     // leftSide.fontWeight = "bold";
     leftSide.appendChild(document.createTextNode("rZERO"));
     var rightSide = document.createElement("td");
-    rightSide.style = zeroStyle;
+    rightSide.style.cssText = zeroStyle;
     //rightSide.backgroundColor = "brown";
     //rightSide.color = "white";
     rightSide.appendChild(document.createTextNode("0"));
@@ -310,10 +313,10 @@ function createRegisterTable(numRegisters) {
     for (var i = 1; i <= numRegisters; i++) {
         regRow = document.createElement("tr");
         leftSide = document.createElement("td");
-        leftSide.style = leftSideStyle;
+        leftSide.style.cssText = leftSideStyle;
         leftSide.appendChild(document.createTextNode("r" + i));
         rightSide = document.createElement("td");
-        rightSide.style = rightSideStyle;
+        rightSide.style.cssText = rightSideStyle;
         rightSide.appendChild(document.createTextNode("0"));
         rightSide.id = "r" + i;
         regRow.appendChild(leftSide);
@@ -324,10 +327,10 @@ function createRegisterTable(numRegisters) {
     for (var i = 0; i < 4; i++) {
         regRow = document.createElement("tr");
         leftSide = document.createElement("td");
-        leftSide.style = leftSideStyle;
+        leftSide.style.cssText = leftSideStyle;
         leftSide.appendChild(document.createTextNode("r" + specialRegisters[i]));
         rightSide = document.createElement("td");
-        rightSide.style = rightSideStyle;
+        rightSide.style.cssText = rightSideStyle;
         rightSide.appendChild(document.createTextNode("0"));
         rightSide.id = "r" + (i + 60);
         regRow.appendChild(leftSide);
@@ -344,7 +347,7 @@ function createVisualStack(numStackSlots) {
     var borderRadius = " -moz-border-radius:6px; -webkit-border-radius:6px; border-radius:6px;";
     var slotStyle = monospaceFont + borderRadius + " background-color: slategray; color: white; width: 80px; text-align: center;";
     var stackTable = document.createElement("table");
-    stackTable.style = "border: 1px darkgray solid;" + borderRadius;
+    stackTable.style.cssText = "border: 1px darkgray solid;" + borderRadius;
     var stackRow = document.createElement("tr");
     var stackInner = document.createElement("td");
     var stackTextLabel = document.createElement("span")
@@ -357,7 +360,7 @@ function createVisualStack(numStackSlots) {
     for (var i = 0; i < numStackSlots; i++) {
         stackRow = document.createElement("tr");
         stackInner = document.createElement("td");
-        stackInner.style = slotStyle;
+        stackInner.style.cssText = slotStyle;
         stackInner.appendChild(document.createTextNode("0"));
         stackInner.id = "st" + i;
         stackRow.appendChild(stackInner);

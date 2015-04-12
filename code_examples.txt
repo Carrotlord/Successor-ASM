@@ -1,0 +1,39 @@
+; Simple for loop
+i mov r2, rZERO, 0
+i mov r1, rZERO, 0
+i mov r6, rZERO, 9
+jge r2, r6, 8
+i add r1, rZERO, 100
+i add r2, rZERO, 1
+j 4
+j -1
+
+; Recursive factorial (returns factorial(6))
+i mov r1, rZERO, 6
+i sub rSP, rZERO, 1
+i save r1, rSP, rZERO, 0
+call 7
+j -1
+; start function
+i sub rSP, rZERO, 1
+i save rBP, rSP, rZERO, 0
+i mov rBP, rSP, 0
+; grab first argument
+i load r1, rBP, rZERO, 2
+jeq r1, rZERO, 20
+i sub r1, rZERO, 1
+; push r1
+i sub rSP, rZERO, 1
+i save r1, rSP, rZERO, 0
+call 7
+i add rSP, rZERO, 1
+j 22
+i mov r5, rZERO, 1
+j 26
+; x * f(x - 1)
+i load r6, rBP, rZERO, 2
+i mul r5, r6, 0
+; return
+i load rBP, rSP, rZERO, 0
+add rSP, rZERO, 1
+ret
