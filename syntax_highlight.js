@@ -33,10 +33,7 @@ function getParts(line) {
         } else if (token.search(registerRegex) !== -1 && results.rB === null) {
             results.rB = token;
         } else if (token.search(registerRegex) !== -1 && results.rC === null) {
-            /* Shuffle registers: */
-            results.rC = results.rA;
-            results.rA = results.rB;
-            results.rB = token;
+            results.rC = token;
         } else if (token.search(constantRegex) !== -1 && results.constant === null) {
             results.constant = token;
         }

@@ -1,0 +1,109 @@
+; push register =
+;     sub rSP, rZERO, 1
+;     save register, rSP, rZERO, 0
+; pop register =
+;     load register, rSP, rZERO, 0
+;     add rSP, rZERO, 1
+
+def factorial(x):
+    if x == 0:
+        return 1
+    return factorial(x - 1)
+
+i mov r1, rZERO, 10
+i sub rSP, rZERO, 1
+i save r1, rSP, rZERO, 0
+call @factorial
+j -1
+; int factorial(int x) {
+@factorial
+; push rBP
+i sub rSP, rZERO, 1
+i save rBP, rSP, rZERO, 0
+i mov rBP, rSP, 0
+; begin function body
+; grab first argument, store into r1 (from [rBP + 2])
+load r1, rBP, rZERO, 2
+jeq r1, rZERO, @return_1
+i sub r1, rZERO, 1
+; push r1
+i sub rSP, rZERO, 1
+save r1, rSP, rZERO, 0
+call @factorial
+ret
+@return_1
+i mov r5, rZERO, 1
+ret
+; }
+
+; Recursive factorial (returns factorial(10))
+i mov r1, rZERO, 10       ; 1
+i sub rSP, rZERO, 1       ; 2
+i save r1, rSP, rZERO, 0  ; 3
+call @factorial           ; 4
+j -1                      ; 5
+; start function          ; 6
+@factorial
+i sub rSP, rZERO, 1       ; 7
+i save rBP, rSP, rZERO, 0 ; 8
+i mov rBP, rSP, 0         ; 9
+; grab first argument, store into r1 (from [rBP + 2])   ; 10
+load r1, rBP, rZERO, 2    ; 11
+jeq r1, rZERO, @return_1  ; 12
+i sub r1, rZERO, 1        ; 13
+; push r1                 ; 14
+i sub rSP, rZERO, 1       ; 15
+save r1, rSP, rZERO, 0    ; 16
+call @factorial           ; 17
+ret                       ; 18
+@return_1
+i mov r5, rZERO, 1        ; 19
+ret                       ; 20
+; }
+
+So we have @factorial = 7
+and @return_1 = 19
+
+; Labels -> addresses
+i mov r1, rZERO, 10       ; 1
+i sub rSP, rZERO, 1       ; 2
+i save r1, rSP, rZERO, 0  ; 3
+call 7                    ; 4
+j -1                      ; 5
+; start function          ; 6
+i sub rSP, rZERO, 1       ; 7
+i save rBP, rSP, rZERO, 0 ; 8
+i mov rBP, rSP, 0         ; 9
+; grab first argument, store into r1 (from [rBP + 2])   ; 10
+load r1, rBP, rZERO, 2    ; 11
+jeq r1, rZERO, 19         ; 12
+i sub r1, rZERO, 1        ; 13
+; push r1                 ; 14
+i sub rSP, rZERO, 1       ; 15
+save r1, rSP, rZERO, 0    ; 16
+call 7                    ; 17
+ret                       ; 18
+i mov r5, rZERO, 1        ; 19
+ret                       ; 20
+
+; Recursive factorial (returns factorial(10))
+i mov r1, rZERO, 10
+i sub rSP, rZERO, 1
+i save r1, rSP, rZERO, 0
+call 7
+j -1
+; start function
+i sub rSP, rZERO, 1
+i save rBP, rSP, rZERO, 0
+i mov rBP, rSP, 0
+; grab first argument
+load r1, rBP, rZERO, 2
+jeq r1, rZERO, 19
+i sub r1, rZERO, 1
+; push r1
+i sub rSP, rZERO, 1
+save r1, rSP, rZERO, 0
+call 7
+ret
+i mov r5, rZERO, 1
+ret
