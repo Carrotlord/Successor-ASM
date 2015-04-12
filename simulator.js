@@ -10,6 +10,7 @@ _g.intRegisters = [];
 _g.lastModifiedReg = -1;
 _g.STACK_BOUNDARY = 0x07E00000;
 _g.intMemory = [];
+_g.previousStackPosition = 0;
 
 /**
  * Adapted from:
@@ -131,7 +132,7 @@ function switchToSimulator() {
     spacerTd.style = "width: 10px;";
     mainRow.appendChild(spacerTd);
     stackTableTd = document.createElement("table");
-    stackTableTd.appendChild(createVisualStack(19));
+    stackTableTd.appendChild(createVisualStack(22));
     mainRow.appendChild(stackTableTd);
     table.appendChild(mainRow);
     getMainTab().appendChild(table);
@@ -225,6 +226,52 @@ function editVisualRegister(reg) {
     }
 }
 
+function updateVisualStackSlot(slotIndex, shouldActivate) {
+    console.log("slotIndex: " + slotIndex);
+    console.log("max size of stack: " + _g.intMemory.length);
+    if (slotIndex < 0 || slotIndex >= _g.intMemory.length) {
+        console.log("Illegal stack position chosen.");
+        return;
+    }
+    var slotDisplay = document.getElementById("st" + slotIndex);
+    if (slotDisplay !== null) {
+        removeAllChildren(slotDisplay);
+        slotDisplay.appendChild(document.createTextNode(_g.intMemory[slotIndex]));
+        if (shouldActivate) {
+            slotDisplay.style.backgroundColor = "green";
+        } else {
+            slotDisplay.style.backgroundColor = "slategray";
+        }
+    }
+}
+
+function updateVisualStack() {
+    var currentStackPosition = getCurrentStackPosition();
+    var difference = _g.previousStackPosition - currentStackPosition;
+    var stackCursor = currentStackPosition;
+    if (difference === 0) {
+        return;
+    } else if (difference === -1) {
+        /* Single push occurred. */
+        updateVisualStackSlot(currentStackPosition - 1, true);
+    } else if (difference === 1) {
+        /* Single pop occurred. */
+        updateVisualStackSlot(currentStackPosition, false);
+    } else if (difference < 0) {
+        while (cursor > _g.previousStackPosition) {
+            console.log("going down... " + cursor);
+            updateVisualStackSlot(cursor, true);
+            cursor--;
+        }
+    } else if (difference > 0) {
+        while (cursor < _g.previousStackPosition) {
+            console.log("going up... " + cursor);
+            updateVisualStackSlot(cursor, false);
+            cursor++;
+        }
+    }
+}
+
 function createRegisterTable(numRegisters) {
     // TODO: move styles to CSS file
     var monospaceFont = "font-family: Consolas, 'Lucida Console', 'Courier New', monospace;";
@@ -307,7 +354,7 @@ function createVisualStack(numStackSlots) {
     stackInner.appendChild(stackTextLabel);
     stackRow.appendChild(stackInner);
     stackTable.appendChild(stackRow);
-    for (var i = _g.STACK_BOUNDARY; i >= _g.STACK_BOUNDARY - numStackSlots; i--) {
+    for (var i = 0; i < numStackSlots; i++) {
         stackRow = document.createElement("tr");
         stackInner = document.createElement("td");
         stackInner.style = slotStyle;

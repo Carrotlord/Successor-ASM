@@ -22,9 +22,9 @@
 -->
 
 <form>
-<input type="button" class="simulator_tab" value="Edit Code" onclick="switchToEditor();">
+<input type="button" class="simulator_tab" value="Edit Code" onclick="resetSimulation(); switchToEditor();">
 <input type="button" class="simulator_tab" value="Simulator" onclick="switchToSimulator();">
-<input type="button" class="simulator_tab" value="Run!" onclick="executeSuccessorStep();">
+<input type="button" class="simulator_tab" value="Execute" onclick="executeSuccessorStep();">
 <input type="button" class="simulator_tab" value="Stop" onclick="window.clearTimeout(_g.programTimeoutID);">
 <input type="button" class="simulator_tab" value="Reset All" onclick="resetSimulation(); switchToSimulator();">
 </form>

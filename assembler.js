@@ -5,7 +5,7 @@ function CodeLine(index, bytecode, originalLine) {
 }
 
 CodeLine.prototype.execute = function() {
-    console.log(_g.intMemory);
+    _g.previousStackPosition = getCurrentStackPosition();
     switch (this.getOpcode()) {
         case 0b1100: /* j */
             var addressPlusOne = this.getConstant();
@@ -43,22 +43,26 @@ CodeLine.prototype.execute = function() {
             var regCValue = _g.intRegisters[this.getRegC()];
             _g.intMemory[-(regBValue + regCValue + this.getConstant() - _g.STACK_BOUNDARY + 1)] = regAValue;
             break;
-        case 0b10111:
+        case 0b10111: /* load */
             var regBValue = _g.intRegisters[this.getRegB()];
             var regCValue = _g.intRegisters[this.getRegC()];
             _g.intRegisters[this.getRegA()] = _g.intMemory[-(regBValue + regCValue + this.getConstant() - _g.STACK_BOUNDARY + 1)];
             break;
         case 0b10100: /* call */
+            // _g.previousStackPosition = getCurrentStackPosition();
             pushStack(_g.ip + 1);
             var functionAddressPlusOne = this.getConstant();
             _g.lastIndex = _g.ip;
             _g.ip = functionAddressPlusOne - 1;
+            // updateVisualStack();
             break;
         case 0b10110: /* ret */
+            // _g.previousStackPosition = getCurrentStackPosition();
             var addressPlusOne = popStack();
             console.log("Just returning to... " + addressPlusOne);
             _g.lastIndex = _g.ip;
             _g.ip = addressPlusOne - 1;
+            // updateVisualStack();
             break;
         case 0b110: /* mul */
             this.registerOperation(function(x, y) { return x * y; },
@@ -67,6 +71,7 @@ CodeLine.prototype.execute = function() {
         default: /* nop */
             break;
     }
+    updateVisualStack();
 }
 
 CodeLine.prototype.getOpcode = function() {
@@ -95,12 +100,18 @@ CodeLine.prototype.getConstant = function() {
 
 CodeLine.prototype.registerOperation = function(primaryOp, subordOp) {
     var regA = this.getRegA();
+    /* if (regA === 62) {
+        _g.previousStackPosition = getCurrentStackPosition();
+    } */
     var regB = this.getRegB();
     var constant = this.getConstant();
     _g.intRegisters[regA] = primaryOp(_g.intRegisters[regA], subordOp(_g.intRegisters[regB], constant));
     /* Clobber rZERO. */
     _g.intRegisters[0] = 0;
     updateVisualRegister(regA);
+    /* if (regA === 62) {
+        updateVisualStack();
+    } */
 }
 
 CodeLine.prototype.compareOperation = function(comparator) {
@@ -114,6 +125,10 @@ CodeLine.prototype.compareOperation = function(comparator) {
         _g.lastIndex = _g.ip;
         _g.ip = addressPlusOne - 1;
     }
+}
+
+function getCurrentStackPosition() {
+    return -(_g.intRegisters[62] - _g.STACK_BOUNDARY + 1);
 }
 
 function popStack() {
