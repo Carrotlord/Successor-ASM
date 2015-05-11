@@ -1,0 +1,45 @@
+; Recursive Fibonacci
+i mov r1, rZERO, 6
+i sub rSP, rZERO, 1
+i save r1, rSP, rZERO, 0
+call 8
+i add rSP, rZERO, 1
+; nop
+j -1
+; start fxn
+i sub rSP, rZERO, 1
+i save rBP, rSP, rZERO, 0
+i mov rBP, rSP, 0
+; grab first argument
+i load r1, rBP, rZERO, 2
+i mov r9, rZERO, 1
+jle r1, r9, 40
+i sub r1, rZERO, 1
+; push r1
+i sub rSP, rZERO, 1
+i save r1, rSP, rZERO, 0
+call 8
+i add rSP, rZERO, 1
+i mov r6, r5, 0
+; reload first argument
+i load r1, rBP, rZERO, 2
+; push r6 to save it (r6 holds fib(n-1))
+i sub rSP, rZERO, 1
+i save r6, rSP, rZERO, 0
+i sub r1, rZERO, 2
+; push r1
+i sub rSP, rZERO, 1
+i save r1, rSP, rZERO, 0
+call 8
+i add rSP, rZERO, 1
+; r5 now holds fib(n-2)
+; pop r6's value
+i load r6, rSP, rZERO, 0
+i add rSP, rZERO, 1
+i add r5, r6, 0
+j 42
+i mov r5, r1, 0
+;return
+i load rBP, rSP, rZERO, 0
+add rSP, rZERO, 1
+ret

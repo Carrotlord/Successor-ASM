@@ -30,6 +30,9 @@ CodeLine.prototype.execute = function() {
         case 0x10: //0b10000: /* jge */
             this.compareOperation(function(a, b) { return a >= b; });
             break;
+        case 0x12: //0b10010: /* jle */
+            this.compareOperation(function(a, b) { return a <= b; });
+            break;
         case 0xE: //0b1110: /* jeq */
             this.compareOperation(function(a, b) { return a === b; });
             break;
